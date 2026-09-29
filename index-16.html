@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Finance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0b2a5b;--navy2:#123c80;--orange:#f58220;--bg:#eef2f8;--card:#fff;--ink:#12213d;--mute:#5d6b85;--line:#dde4ef;--green:#1e8e5a;--red:#d0342c;--gold:#f58220}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,sans-serif;line-height:1.6}
+.app{display:flex;min-height:100vh;width:100%}
+aside{width:250px;flex:none;background:linear-gradient(180deg,var(--navy),#071d42);color:#fff;padding:22px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.logo{font-weight:800;font-size:1.15rem;padding:0 10px 18px;border-bottom:3px solid var(--orange);margin-bottom:16px}
+.logo small{display:block;color:#b9c8e6;font-weight:400;font-size:.75rem}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;color:#cfdbf2;padding:12px 14px;border-radius:8px;margin-bottom:4px;font-size:.95rem}
+nav button:hover{background:rgba(255,255,255,.08)}
+nav button.on{background:var(--orange);color:#fff;font-weight:700}
+.note{margin-top:auto;font-size:.72rem;color:#9fb3d9;padding:10px}
+.content{flex:1;min-width:0}
+header{background:linear-gradient(90deg,var(--navy2),var(--navy));color:#fff;padding:18px 32px;border-bottom:4px solid var(--orange);display:flex;justify-content:space-between;align-items:center}
+header b{font-size:1.25rem}
+main{padding:26px 32px 50px;width:100%}
+.view{display:none}.view.on{display:block}
+h2{font-size:1.15rem;margin:0 0 14px;color:var(--navy)}
+.card{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--navy);border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px rgba(11,42,91,.06)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:18px}
+.tile{border-radius:12px;padding:18px 20px;color:#fff}
+.tile .k{color:rgba(255,255,255,.85)}.tile .big{font-size:1.7rem;font-weight:800}
+.t1{background:linear-gradient(135deg,#d0342c,#e8623a)}.t2{background:linear-gradient(135deg,#0b2a5b,#1e56a8)}
+.t3{background:linear-gradient(135deg,#1e8e5a,#39b37a)}.t4{background:linear-gradient(135deg,#f58220,#f9a94b)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.k{font-size:.78rem;color:var(--mute)}.v{font-size:1.15rem;font-weight:700}
+.red{color:var(--red)}.green{color:var(--green)}
+.bar{display:flex;height:22px;border-radius:11px;overflow:hidden;background:var(--line);margin:8px 0}
+.bar i{display:block;height:100%;transition:width .5s}
+.lg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.78rem;color:var(--mute)}
+.lg b{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line)}th{font-size:.78rem;color:var(--mute)}
+#banks{display:grid;grid-template-columns:repeat(auto-fill,minmax(560px,1fr));gap:16px}
+#banks .card{margin:0;border-top-color:var(--orange)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;align-items:end;padding:12px 0;border-top:1px solid var(--line)}
+.tot{display:flex;flex-wrap:wrap;gap:22px;border-top:2px solid var(--navy);padding-top:12px;margin-top:8px}
+label{display:block;font-size:.75rem;color:var(--mute)}
+input{width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:6px;background:#f8fafd;color:var(--ink)}
+button{font:inherit;cursor:pointer}
+button.add{background:var(--orange);color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:700}
+button.del{background:none;border:1px solid var(--line);color:var(--red);border-radius:6px;padding:5px 10px}
+.bn{display:flex;gap:8px;align-items:center;margin-bottom:6px}.bn input{font-weight:700;font-size:1.05rem}
+input:focus-visible,button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+small{color:var(--mute)}
+@media(max-width:820px){.app{flex-direction:column}aside{width:100%;height:auto;position:static;padding:12px}nav{display:flex;flex-wrap:wrap;gap:4px}nav button{width:auto}.note{display:none}main{padding:16px}#banks{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+#report{display:none}
+@media print{
+ @page{margin:14mm}
+ body{background:#fff}.app{display:none!important}
+ #report{display:block;color:#12213d;font-size:11pt}
+ #report h1{color:#0b2a5b;border-bottom:3px solid #f58220;padding-bottom:6px;margin:0 0 4px}
+ #report h2{color:#0b2a5b;margin:18px 0 6px;font-size:14pt}#report h3{margin:10px 0 4px;font-size:12pt}
+ #report table{margin-bottom:6px;break-inside:avoid}#report th{background:#0b2a5b;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #report th,#report td{border:1px solid #c9d3e3;padding:5px 8px;text-align:left}
+}
+dialog{border:0;border-radius:12px;padding:20px;width:92%;max-width:520px;color:var(--ink);background:#fff;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(7,29,66,.55)}
+#toast{position:fixed;right:24px;bottom:24px;background:var(--green);color:#fff;padding:10px 18px;border-radius:8px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast.on{opacity:1}
+button.add.g{background:var(--green)}button.ic{background:#fff;border:1px solid var(--line);border-radius:6px;padding:5px 9px;font-size:1.05rem}
+.logout{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:8px 14px;font-weight:600}
+.rulebar{display:flex;height:26px;border-radius:8px;overflow:hidden;margin:10px 0}
+.rulebar div{display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:700}
+@media print{dialog,#toast{display:none!important}}
+.acct{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 16px 4px 4px;margin-right:14px;vertical-align:middle;font-weight:700;letter-spacing:.3px}
+.acct i{width:34px;height:34px;border-radius:50%;background:var(--orange);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-weight:800}
+@media(max-width:820px){#today{display:none}}
+#lockscr{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy),#071d42);display:flex;align-items:center;justify-content:center;z-index:999;overflow-y:auto;padding:30px 16px}
+.lockbox{background:#fff;border-radius:14px;padding:32px 30px;width:92%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center;margin:auto;flex-shrink:0}
+.lockbox i{width:56px;height:56px;border-radius:50%;background:var(--orange);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:1.3rem;margin-bottom:10px}
+.lockbox h3{margin:0 0 4px;color:var(--navy)}.lockbox p{margin:0 0 16px;color:var(--mute);font-size:.85rem}
+.lockbox input{margin-bottom:10px}.lockbox button{width:100%;margin-top:4px}
+.lockerr{color:var(--red);font-size:.8rem;min-height:18px;margin-top:2px}
+.app{display:none}
+</style>
+</head>
+<body>
+<div id="lockscr"><div class="lockbox">
+  <i>A</i><h3>ASWIN M</h3><p>Sign in to your finance dashboard</p>
+  <input id="lu" placeholder="ID" autocomplete="username">
+  <input id="lp" type="password" placeholder="Password" autocomplete="current-password">
+  <button class="add" style="width:100%" onclick="tryLogin()">Sign in</button>
+  <div class="lockerr" id="lockerr"></div>
+</div></div>
+<div class="app">
+<aside>
+  <div class="logo">My Finance<small>Personal Finance Dashboard</small></div>
+  <nav>
+    <button class="on" data-v="home">Dashboard</button>
+    <button data-v="bank">Bank EMIs</button>
+    <button data-v="people">Borrowed from People</button>
+    <button data-v="lent">Lent to People</button>
+    <button data-v="sav">Savings</button>
+    <button data-v="bud">Monthly Budget</button>
+  </nav>
+  <div class="note">Data is saved in this browser only. Re-enter it on another device.</div>
+</aside>
+<section class="content">
+<header><b id="ttl">Dashboard</b><span><span class="acct"><i>A</i>ASWIN M</span><button class="logout" onclick="logout()">Logout</button><span id="today"></span> &nbsp; <button class="add" id="pdf">Download PDF</button></span></header>
+<main>
+<div class="view on" id="v-home">
+  <div class="tiles">
+    <div class="tile t1"><div class="k">Total Debt to Repay</div><div class="big" id="gDebt">₹0</div></div>
+    <div class="tile t2"><div class="k">Bank EMI Balance</div><div class="big" id="gBank">₹0</div></div>
+    <div class="tile t4"><div class="k">Owed to People</div><div class="big" id="gPeople">₹0</div></div>
+    <div class="tile" style="background:linear-gradient(135deg,#5b3fb8,#8f73e0)"><div class="k">To Receive from People</div><div class="big" id="gRecv">₹0</div></div>
+    <div class="tile t3"><div class="k">Total Savings</div><div class="big" id="gSav">₹0</div></div>
+  </div>
+  <div class="two">
+    <div class="card"><h2>Debt vs Savings</h2>
+      <div class="bar"><i id="dBar" style="background:var(--red)"></i><i id="sBar" style="background:var(--green)"></i></div>
+      <div class="lg"><span><b style="background:var(--red)"></b>Debt</span><span><b style="background:var(--green)"></b>Savings</span></div>
+      <div class="tot"><div><div class="k">Savings − Debt</div><div class="v" id="gNet">₹0</div></div><div><div class="k">Left This Month</div><div class="v" id="gLeft">₹0</div></div></div>
+    </div>
+    <div class="card"><h2>Where Your Income Goes</h2>
+      <div class="bar"><i id="bpE" style="background:var(--navy)"></i><i id="bpP" style="background:var(--orange)"></i><i id="bpX" style="background:#8a97b1"></i><i id="bpS" style="background:#39b37a"></i><i id="bpL" style="background:#cfe9dc"></i></div>
+      <div class="lg"><span><b style="background:var(--navy)"></b>EMI</span><span><b style="background:var(--orange)"></b>People</span><span><b style="background:#8a97b1"></b>Expenses</span><span><b style="background:#39b37a"></b>Savings</span><span><b style="background:#cfe9dc"></b>Left</span></div>
+    </div>
+  </div>
+  <div class="card"><h2>By Bank</h2>
+    <table><thead><tr><th>Bank</th><th>Monthly EMI</th><th>Left to Pay</th></tr></thead><tbody id="bankTable"></tbody></table>
+  </div>
+</div>
+<div class="view" id="v-bank"><h2>Bank EMIs</h2>
+<div id="banks"></div>
+<button class="add" onclick="addBank()">+ Add Bank</button>
+<div class="card" style="margin-top:12px">
+  <div class="k">All Banks Combined (Grand Total)</div>
+  <div class="tot">
+    <div><div class="k">Monthly EMI</div><div class="v" id="tbM">₹0</div></div>
+    <div><div class="k">Total Left to Pay</div><div class="v red" id="tbR">₹0</div></div>
+  </div>
+</div>
+
+</div>
+<div class="view" id="v-people"><h2>Borrowed from People</h2>
+<div class="card" style="border-top-color:var(--orange)"><div class="grid">
+<div><label>Person name</label><input id="npn"></div><div><label>Amount borrowed (₹)</label><input type="number" id="npa"></div><div><label>Date</label><input type="date" id="npd"></div></div>
+<div style="margin-top:12px"><button class="add" onclick="addPerson()">Save person</button></div></div>
+<div id="people" class="two"></div>
+<div class="card"><div class="tot" style="border:0;padding:0;margin:0">
+<div><div class="k">Total Borrowed</div><div class="v" id="tpB">₹0</div></div><div><div class="k">Repaid</div><div class="v green" id="tpP">₹0</div></div>
+<div><div class="k">Repaid This Month</div><div class="v" id="tpM">₹0</div></div><div><div class="k">Total Left to Repay</div><div class="v red" id="tpR">₹0</div></div></div></div>
+</div>
+<div class="view" id="v-lent"><h2>Lent to People (money to receive)</h2>
+<div class="card" style="border-top-color:#5b3fb8"><div class="grid">
+<div><label>Person name</label><input id="lnn"></div><div><label>Amount lent (₹)</label><input type="number" id="lna"></div><div><label>Date</label><input type="date" id="lnd"></div></div>
+<div style="margin-top:12px"><button class="add" onclick="addLent()">Save person</button></div></div>
+<div id="lent" class="two"></div>
+<div class="card"><div class="tot" style="border:0;padding:0;margin:0">
+<div><div class="k">Total Lent</div><div class="v" id="tlL">₹0</div></div><div><div class="k">Received Back</div><div class="v green" id="tlR">₹0</div></div>
+<div><div class="k">Total Left to Receive</div><div class="v" style="color:#5b3fb8" id="tlB">₹0</div></div></div></div>
+</div>
+<div class="view" id="v-sav"><h2>Savings</h2>
+<div id="funds" class="two"></div>
+<div class="card"><div class="tot" style="border:0;padding:0;margin:0">
+<div><div class="k">Total Savings</div><div class="v green" id="sTot">₹0</div></div><div><div class="k">Saved This Month</div><div class="v" id="sMon">₹0</div></div></div></div>
+</div>
+<div class="view" id="v-bud"><h2>Monthly Budget</h2>
+<div class="card">
+  <div class="grid">
+    <div><label>Monthly income (₹)</label><input type="number" data-p="inc"></div>
+    <div><label>Other expenses (rent, food...) (₹)</label><input type="number" data-p="exp"></div>
+  </div>
+  <div class="tot">
+    <div><div class="k">Income</div><div class="v" id="bInc">₹0</div></div>
+    <div><div class="k">− Bank EMIs</div><div class="v" id="bEmi">₹0</div></div>
+    <div><div class="k">− To people</div><div class="v" id="bPer">₹0</div></div>
+    <div><div class="k">− Expenses</div><div class="v" id="bExp">₹0</div></div>
+    <div><div class="k">− Savings</div><div class="v" id="bSav">₹0</div></div>
+    <div><div class="k">= Left</div><div class="v" id="bLeft">₹0</div></div>
+  </div>
+</div>
+<div class="card"><h2 style="margin-top:0">50/30/20 Rule Calculator</h2>
+<p style="color:var(--mute);font-size:.85rem;margin-top:-6px">Split any amount into Needs (50%), Wants (30%) and Savings (20%) — a simple guide for spending your income.</p>
+<div class="grid"><div><label>Amount (₹)</label><input type="number" id="ruleAmt" oninput="calcRule()"></div>
+<div><button class="add" style="margin-top:20px" onclick="useIncome()">Use my income</button></div></div>
+<div class="rulebar"><div id="ruleN" style="background:var(--navy);width:50%">50%</div><div id="ruleW" style="background:var(--orange);width:30%">30%</div><div id="ruleS" style="background:var(--green);width:20%">20%</div></div>
+<div class="tot">
+<div><div class="k">Needs (rent, EMI, groceries, bills)</div><div class="v" id="rN">₹0</div></div>
+<div><div class="k">Wants (eating out, shopping, entertainment)</div><div class="v" id="rW">₹0</div></div>
+<div><div class="k">Savings &amp; investments</div><div class="v green" id="rS">₹0</div></div>
+</div></div>
+</div>
+</main></section></div>
+<dialog id="dlg"><div class="bn"><b id="dlgt" style="flex:1;font-size:1.1rem"></b><button class="del" onclick="dlg.close()">Close</button></div><div id="dlgb" style="max-height:60vh;overflow:auto"></div></dialog>
+<div id="toast"></div>
+<div id="report"></div>
+
+<script>
+const KEY="fin-dash-v2";
+const $=id=>document.getElementById(id);
+const num=v=>parseFloat(v)||0;
+const R=x=>(x<0?"−":"")+"₹"+Math.round(Math.abs(x)).toLocaleString("en-IN");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const thisM=d=>String(d).slice(0,7)===today().slice(0,7);
+const emi0=()=>({n:"",a:"",t:"",p:"",pay:[]});
+const sum=(a,f)=>a.filter(f).reduce((s,x)=>s+num(x.amt),0);
+let S={banks:[{name:"",emis:[emi0()]}],people:[],lent:[],funds:{emg:[],reg:[]},inc:"",exp:""};
+try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+S.lent??=[];S.funds??={emg:[],reg:[]};S.funds.emg??=[];S.funds.reg??=[];
+if(S.sav){["emg","reg"].forEach(k=>{if(num(S.sav[k]))S.funds[k].push({t:"d",amt:num(S.sav[k]),d:today()})});delete S.sav}
+S.people=S.people.map(p=>p.txs?p:{name:p.name,txs:[...(num(p.b)?[{t:"b",amt:num(p.b),d:today()}]:[]),...(num(p.p)?[{t:"r",amt:num(p.p),d:today()}]:[])]});
+S.banks.forEach(b=>b.emis.forEach(e=>e.pay??=[]));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let tt;function toast(m){$("toast").textContent=m;$("toast").classList.add("on");clearTimeout(tt);tt=setTimeout(()=>$("toast").classList.remove("on"),1800)}
+const inp=(p,label,val,type)=>`<div><label>${label}</label><input ${type==="text"?"":'type="number"'} data-p="${p}" value="${esc(val)}"></div>`;
+const FUNDS={emg:"Emergency Fund",reg:"Regular Fund"};
+
+function build(){
+  if(!S.banks.length)S.banks.push({name:"",emis:[emi0()]});
+  $("banks").innerHTML=S.banks.map((b,i)=>`<div class="card">
+    <div class="bn"><input data-p="banks.${i}.name" value="${esc(b.name)}" placeholder="Bank name"><button class="del" onclick="delBank(${i})" aria-label="Remove bank">Remove</button></div>
+    ${b.emis.map((e,j)=>`<div class="row">
+      ${inp(`banks.${i}.emis.${j}.n`,"EMI name (e.g. Home Loan)",e.n,"text")}
+      ${inp(`banks.${i}.emis.${j}.a`,"Monthly EMI (₹)",e.a)}
+      ${inp(`banks.${i}.emis.${j}.t`,"Total months",e.t)}
+      ${inp(`banks.${i}.emis.${j}.p`,"Months paid before tracking",e.p)}
+      <div><div class="k">Months paid / left</div><div class="v" id="ep${i}_${j}"></div></div>
+      <div><div class="k">Left to pay</div><div class="v red" id="er${i}_${j}">₹0</div></div>
+      <div><label>Payment date</label><input type="date" id="pd${i}_${j}" value="${today()}"></div>
+      <button class="add g" onclick="payEmi(${i},${j})">Add payment</button>
+      <button class="ic" title="History" aria-label="History" onclick="hist('e',${i},${j})">🕘</button>
+      <button class="del" onclick="delEmi(${i},${j})" aria-label="Remove EMI">Remove</button></div>`).join("")}
+    <button class="add" onclick="addEmi(${i})">+ Add EMI</button>
+    <div class="tot"><div><div class="k">Monthly EMI at this bank</div><div class="v" id="bm${i}">₹0</div></div>
+    <div><div class="k">Total left at this bank</div><div class="v red" id="br${i}">₹0</div></div></div></div>`).join("");
+  $("people").innerHTML=S.people.length?S.people.map((p,i)=>`<div class="card" style="border-top-color:var(--orange)">
+    <div class="bn"><input data-p="people.${i}.name" value="${esc(p.name)}" placeholder="Name"><button class="ic" title="History" aria-label="History" onclick="hist('p',${i})">🕘</button><button class="del" onclick="delPerson(${i})">Remove</button></div>
+    <div class="tot" style="border:0;padding:0;margin:0 0 6px"><div><div class="k">Borrowed</div><div class="v" id="pb${i}">₹0</div></div><div><div class="k">Repaid</div><div class="v green" id="pp${i}">₹0</div></div><div><div class="k">Left</div><div class="v red" id="pr${i}">₹0</div></div></div>
+    <div class="row"><div><label>Amount (₹)</label><input type="number" id="ta${i}"></div><div><label>Date</label><input type="date" id="td${i}" value="${today()}"></div>
+    <button class="add" onclick="addTx(${i},'b')">Borrowed more</button><button class="add g" onclick="addTx(${i},'r')">Repaid</button></div></div>`).join(""):"<small>No one added yet. Use “Save person” above.</small>";
+  $("lent").innerHTML=S.lent.length?S.lent.map((p,i)=>`<div class="card" style="border-top-color:#5b3fb8">
+    <div class="bn"><input data-p="lent.${i}.name" value="${esc(p.name)}" placeholder="Name"><button class="ic" title="History" aria-label="History" onclick="hist('l',${i})">🕘</button><button class="del" onclick="delLent(${i})">Remove</button></div>
+    <div class="tot" style="border:0;padding:0;margin:0 0 6px"><div><div class="k">Lent</div><div class="v" id="lb${i}">₹0</div></div><div><div class="k">Received</div><div class="v green" id="lr${i}">₹0</div></div><div><div class="k">Left to receive</div><div class="v" style="color:#5b3fb8" id="ll${i}">₹0</div></div></div>
+    <div class="row"><div><label>Amount (₹)</label><input type="number" id="la${i}"></div><div><label>Date</label><input type="date" id="ld${i}" value="${today()}"></div>
+    <button class="add" onclick="addLtx(${i},'l')">Lent more</button><button class="add g" onclick="addLtx(${i},'r')">Received</button></div></div>`).join(""):"<small>No one added yet. Use “Save person” above.</small>";
+  $("funds").innerHTML=Object.keys(FUNDS).map(k=>`<div class="card" style="border-top-color:var(--green)">
+    <div class="bn"><b style="flex:1;font-size:1.05rem">${FUNDS[k]}</b><button class="ic" title="History" aria-label="History" onclick="hist('f','${k}')">🕘</button></div>
+    <div class="tot" style="border:0;padding:0;margin:0 0 6px"><div><div class="k">Balance</div><div class="v green" id="fb${k}">₹0</div></div><div><div class="k">This month</div><div class="v" id="fm${k}">₹0</div></div></div>
+    <div class="row"><div><label>Amount (₹)</label><input type="number" id="fa${k}"></div><div><label>Date</label><input type="date" id="fd${k}" value="${today()}"></div>
+    <button class="add g" onclick="addFund('${k}','d')">Add money</button><button class="add" onclick="addFund('${k}','w')">Withdraw</button></div></div>`).join("");
+  document.querySelectorAll("[data-p]").forEach(el=>{
+    const path=el.dataset.p.split(".");let o=S;for(const k of path)o=o?.[k];
+    if(el.value===""&&o!=null)el.value=o;
+    el.oninput=()=>{let t=S;for(const k of path.slice(0,-1)){t[k]??={};t=t[k]}t[path.at(-1)]=el.value;save();calc()};
+  });
+  calc();
+}
+function calc(){
+  let tbM=0,tbR=0;const rows=[];
+  S.banks.forEach((b,i)=>{let m=0,r=0;
+    b.emis.forEach((e,j)=>{const pd=num(e.p)+e.pay.length,ml=Math.max(0,num(e.t)-pd),rem=num(e.a)*ml;m+=num(e.a);r+=rem;
+      const a=$(`er${i}_${j}`),c=$(`ep${i}_${j}`);if(a)a.textContent=R(rem);if(c)c.textContent=pd+" / "+ml});
+    tbM+=m;tbR+=r;rows.push(`<tr><td>${esc(b.name||"Bank")}</td><td>${R(m)}</td><td class="red">${R(r)}</td></tr>`);
+    $("bm"+i).textContent=R(m);$("br"+i).textContent=R(r)});
+  let pB=0,pP=0,pM=0,pR=0;
+  S.people.forEach((p,i)=>{const b=sum(p.txs,x=>x.t==="b"),r=sum(p.txs,x=>x.t==="r");pB+=b;pP+=r;pR+=b-r;pM+=sum(p.txs,x=>x.t==="r"&&thisM(x.d));
+    $("pb"+i).textContent=R(b);$("pp"+i).textContent=R(r);$("pr"+i).textContent=R(b-r)});
+  let sTot=0,sMon=0;
+  Object.keys(FUNDS).forEach(k=>{const a=S.funds[k],bal=sum(a,x=>x.t==="d")-sum(a,x=>x.t==="w"),mo=sum(a,x=>x.t==="d"&&thisM(x.d))-sum(a,x=>x.t==="w"&&thisM(x.d));
+    sTot+=bal;sMon+=mo;$("fb"+k).textContent=R(bal);$("fm"+k).textContent=R(mo)});
+  const left=num(S.inc)-tbM-pM-num(S.exp)-sMon,debt=tbR+pR,set=(id,v)=>$(id).textContent=R(v);
+  set("tbM",tbM);set("tbR",tbR);set("tpB",pB);set("tpP",pP);set("tpM",pM);set("tpR",pR);set("sTot",sTot);set("sMon",sMon);
+  set("bInc",num(S.inc));set("bEmi",tbM);set("bPer",pM);set("bExp",num(S.exp));set("bSav",sMon);set("bLeft",left);
+  set("gDebt",debt);set("gBank",tbR);set("gPeople",pR);set("gSav",sTot);set("gNet",sTot-debt);set("gLeft",left);
+  let lL=0,lR=0;S.lent.forEach((p,i)=>{const l=sum(p.txs,x=>x.t==="l"),r=sum(p.txs,x=>x.t==="r");lL+=l;lR+=r;$("lb"+i).textContent=R(l);$("lr"+i).textContent=R(r);$("ll"+i).textContent=R(l-r)});
+  set("tlL",lL);set("tlR",lR);set("tlB",lL-lR);set("gRecv",lL-lR);
+  $("bankTable").innerHTML=rows.join("")+`<tr><td><b>Total</b></td><td><b>${R(tbM)}</b></td><td class="red"><b>${R(tbR)}</b></td></tr>`;
+  const tt=Math.max(1,debt+sTot);$("dBar").style.width=debt/tt*100+"%";$("sBar").style.width=Math.max(0,sTot)/tt*100+"%";
+  const base=Math.max(num(S.inc),tbM+pM+num(S.exp)+Math.max(0,sMon),1);
+  [["bpE",tbM],["bpP",pM],["bpX",num(S.exp)],["bpS",Math.max(0,sMon)],["bpL",Math.max(0,left)]].forEach(([id,v])=>$(id).style.width=v/base*100+"%");
+  $("bLeft").className=$("gLeft").className="v "+(left<0?"red":"green");
+}
+function addBank(){S.banks.push({name:"",emis:[emi0()]});save();build()}
+function delBank(i){if(confirm("Remove this bank and its history?")){S.banks.splice(i,1);save();build()}}
+function addEmi(i){S.banks[i].emis.push(emi0());save();build()}
+function delEmi(i,j){if(confirm("Remove this EMI and its history?")){S.banks[i].emis.splice(j,1);save();build()}}
+function payEmi(i,j){const e=S.banks[i].emis[j];if(!num(e.a))return toast("Enter the monthly EMI first");
+  e.pay.push({d:$(`pd${i}_${j}`).value||today(),amt:num(e.a)});save();build();toast("Payment saved")}
+function addPerson(){const n=$("npn").value.trim();if(!n)return toast("Enter the person's name");
+  const p={name:n,txs:[]};if(num($("npa").value))p.txs.push({t:"b",amt:num($("npa").value),d:$("npd").value||today()});
+  S.people.push(p);save();$("npn").value=$("npa").value="";build();toast("Person saved")}
+function delPerson(i){if(confirm("Remove this person and their history?")){S.people.splice(i,1);save();build()}}
+function addLent(){const n=$("lnn").value.trim();if(!n)return toast("Enter the person's name");
+  const p={name:n,txs:[]};if(num($("lna").value))p.txs.push({t:"l",amt:num($("lna").value),d:$("lnd").value||today()});
+  S.lent.push(p);save();$("lnn").value=$("lna").value="";build();toast("Person saved")}
+function delLent(i){if(confirm("Remove this person and their history?")){S.lent.splice(i,1);save();build()}}
+function addLtx(i,t){const a=num($("la"+i).value);if(!a)return toast("Enter an amount");
+  S.lent[i].txs.push({t,amt:a,d:$("ld"+i).value||today()});save();build();toast("Saved")}
+function addTx(i,t){const a=num($("ta"+i).value);if(!a)return toast("Enter an amount");
+  S.people[i].txs.push({t,amt:a,d:$("td"+i).value||today()});save();build();toast("Saved")}
+function addFund(k,t){const a=num($("fa"+k).value);if(!a)return toast("Enter an amount");
+  S.funds[k].push({t,amt:a,d:$("fd"+k).value||today()});save();build();toast("Saved")}
+let H=null;
+const arr=(k,i,j)=>k==="e"?S.banks[i].emis[j].pay:k==="p"?S.people[i].txs:k==="l"?S.lent[i].txs:S.funds[i];
+function hist(k,i,j){H=[k,i,j];renderHist();if(!$("dlg").open)$("dlg").showModal()}
+function renderHist(){const[k,i,j]=H,a=arr(k,i,j),L=k==="l"?{l:"Lent",r:"Received"}:{b:"Borrowed",r:"Repaid",d:"Added",w:"Withdrawn"};
+  $("dlgt").textContent=k==="e"?(S.banks[i].name||"Bank")+" · "+(S.banks[i].emis[j].n||"EMI")+" payments":k==="p"?(S.people[i].name||"Person")+" history":k==="l"?(S.lent[i].name||"Person")+" (lent) history":FUNDS[i]+" history";
+  const tot={};a.forEach(x=>{const l=k==="e"?"Total paid":L[x.t];tot[l]=(tot[l]||0)+num(x.amt)});
+  const body=a.map((x,n)=>({x,n})).sort((p,q)=>q.x.d.localeCompare(p.x.d)||q.n-p.n).map(({x,n})=>`<tr><td>${x.d}</td><td>${k==="e"?"EMI paid":L[x.t]}</td><td>${R(x.amt)}</td><td><button class="del" onclick="delTx(${n})" aria-label="Delete entry">✕</button></td></tr>`).join("");
+  $("dlgb").innerHTML=a.length?`<table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th></th></tr></thead><tbody>${body}</tbody></table><p><b>${Object.entries(tot).map(([l,v])=>l+": "+R(v)).join(" · ")}</b></p>`:"<p>No entries yet.</p>"}
+function delTx(n){if(confirm("Delete this entry?")){arr(...H).splice(n,1);save();build();renderHist()}}
+function report(){
+  const t=(h,rows)=>`<table style="width:100%"><thead><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  const B=x=>`<b>${x}</b>`,log=[];let tbM=0,tbR=0,pB=0,pP=0,pM=0,pR=0,bh="";
+  S.banks.forEach(b=>{let m=0,r=0;const rows=b.emis.map(e=>{const pd=num(e.p)+e.pay.length,rem=num(e.a)*Math.max(0,num(e.t)-pd);m+=num(e.a);r+=rem;
+    e.pay.forEach(x=>log.push([x.d,"Bank EMI",esc((b.name||"Bank")+" · "+(e.n||"EMI")),"Paid",x.amt]));return[esc(e.n),R(num(e.a)),pd+" / "+num(e.t),R(rem)]});
+    tbM+=m;tbR+=r;rows.push([B("Total"),B(R(m)),"",B(R(r))]);bh+=`<h3>${esc(b.name||"Bank")}</h3>`+t(["EMI","Monthly EMI","Months paid / total","Left to pay"],rows)});
+  const pr=S.people.map(p=>{const b=sum(p.txs,x=>x.t==="b"),r=sum(p.txs,x=>x.t==="r");pB+=b;pP+=r;pR+=b-r;pM+=sum(p.txs,x=>x.t==="r"&&thisM(x.d));
+    p.txs.forEach(x=>log.push([x.d,"People",esc(p.name),x.t==="b"?"Borrowed":"Repaid",x.amt]));return[esc(p.name),R(b),R(r),R(b-r)]});
+  pr.push([B("Total"),B(R(pB)),B(R(pP)),B(R(pR))]);
+  let sTot=0,sMon=0;const fr=Object.keys(FUNDS).map(k=>{const a=S.funds[k],bal=sum(a,x=>x.t==="d")-sum(a,x=>x.t==="w"),mo=sum(a,x=>x.t==="d"&&thisM(x.d))-sum(a,x=>x.t==="w"&&thisM(x.d));
+    sTot+=bal;sMon+=mo;a.forEach(x=>log.push([x.d,"Savings",FUNDS[k],x.t==="d"?"Added":"Withdrawn",x.amt]));return[FUNDS[k],R(bal),R(mo)]});
+  fr.push([B("Total"),B(R(sTot)),B(R(sMon))]);
+  let lL=0,lR=0;const lr=S.lent.map(p=>{const l=sum(p.txs,x=>x.t==="l"),r=sum(p.txs,x=>x.t==="r");lL+=l;lR+=r;p.txs.forEach(x=>log.push([x.d,"Lent",esc(p.name),x.t==="l"?"Lent":"Received",x.amt]));return[esc(p.name),R(l),R(r),R(l-r)]});
+  lr.push([B("Total"),B(R(lL)),B(R(lR)),B(R(lL-lR))]);
+  const left=num(S.inc)-tbM-pM-num(S.exp)-sMon,debt=tbR+pR;log.sort((a,b)=>b[0].localeCompare(a[0]));
+  $("report").innerHTML=`<h1>My Finance Report</h1><p><b>Account: ASWIN M</b> · ${new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</p><h2>Summary</h2>`
+  +t(["Total debt","Bank EMI balance","Owed to people","Total savings","Savings − Debt","Left this month"],[[R(debt),R(tbR),R(pR),R(sTot),R(sTot-debt),R(left)]])
+  +`<h2>Bank EMIs</h2>`+bh+`<p>${B("All banks: monthly EMI "+R(tbM)+", left to pay "+R(tbR))}</p><h2>Borrowed from People</h2>`+t(["Name","Borrowed","Repaid","Left"],pr)
+  +`<h2>Lent to People (to receive)</h2>`+t(["Name","Lent","Received","Left to receive"],lr)
+  +`<h2>Savings</h2>`+t(["Fund","Balance","Saved this month"],fr)
+  +`<h2>Monthly Budget</h2>`+t(["Item","Amount"],[["Income",R(num(S.inc))],["Bank EMIs",R(tbM)],["Repaid to people (this month)",R(pM)],["Other expenses",R(num(S.exp))],["Savings (this month)",R(sMon)],[B("Left"),B(R(left))]])
+  +`<h2>History</h2>`+(log.length?t(["Date","Section","Item","Type","Amount"],log.map(x=>[x[0],x[1],x[2],x[3],R(x[4])])):"<p>No entries yet.</p>")}
+$("pdf").onclick=()=>{report();const d=document.title;document.title="Finance-Report";print();document.title=d};
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+b.dataset.v));
+  $("ttl").textContent=b.textContent;scrollTo(0,0)});
+$("today").textContent=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"});
+$("npd").value=today();$("lnd").value=today();
+const CRED={id:"7356060827",pw:"Beena@Jan31"};
+function logout(){if(confirm("Log out of the dashboard?")){sessionStorage.removeItem("fd-auth");location.reload()}}
+function tryLogin(){const u=$("lu").value.trim(),p=$("lp").value;
+  if(u===CRED.id&&p===CRED.pw){sessionStorage.setItem("fd-auth","1");$("lockscr").style.display="none";document.querySelector(".app").style.display="flex"}
+  else{$("lockerr").textContent="Incorrect ID or password"}}
+[$("lu"),$("lp")].forEach(el=>el.addEventListener("keydown",e=>{if(e.key==="Enter")tryLogin()}));
+if(sessionStorage.getItem("fd-auth")==="1"){$("lockscr").style.display="none";document.querySelector(".app").style.display="flex"}
+else{$("lu").focus()}
+function calcRule(){const a=num($("ruleAmt").value);
+  $("rN").textContent=R(a*.5);$("rW").textContent=R(a*.3);$("rS").textContent=R(a*.2)}
+function useIncome(){$("ruleAmt").value=S.inc||0;calcRule()}
+build();calcRule();
+</script>
+</body>
+</html>
